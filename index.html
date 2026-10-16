@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Крестики-знайки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Nunito:wght@500;700;800&family=Russo+One&family=Pangolin&family=Caveat:wght@700&display=swap">
+<style>
+/* Layout: one playful screen — team scoreboard on top, a big 3×3 board of colored tiles, teacher panel as a dialog.
+   The look comes in four skins chosen by the page itself (data-skin on <html>), each a full token set; independent of the viewer's light/dark theme. */
+/* Skin «Конфетти» (default) */
+:root {
+  color-scheme: light;
+  --bg: #FFF4D6;
+  --bg-image: radial-gradient(#FFE6A3 2px, transparent 2.5px);
+  --bg-size: 26px 26px;
+  --bg-pos: 0 0;
+  --ink: #2B2140;
+  --ink-soft: #6B5E86;
+  --paper: #FFFFFF;
+  --frame: #2B2140;
+  --cell-ink: #2B2140;
+  --soft: #F3EEFF;
+  --line: #CFC6E3;
+  --win: #FFF7B8;
+  --x: #F0444B; --x-deep: #B71F2A; --x-soft: #FFE3E4;
+  --o: #2F6BF2; --o-deep: #1A43A8; --o-soft: #E2EBFF;
+  --good: #1FA45B;
+  --bad: #E2512D;
+  --c1: #FF8A65; --c2: #FFC93C; --c3: #9BE15D; --c4: #4DD4C6; --c5: #6FB7FF;
+  --c6: #B794F6; --c7: #FF8FC7; --c8: #FFB04D; --c9: #7ED9A0;
+  --f-display: "Balsamiq Sans", "Comic Sans MS", "Trebuchet MS", sans-serif;
+  --f-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --display-scale: 1;
+  --r: 22px;
+}
+/* Skin «Космос» */
+:root[data-skin="space"] {
+  color-scheme: dark;
+  --bg: #12153A;
+  --bg-image: radial-gradient(#FFFFFF 1.2px, transparent 1.8px), radial-gradient(#8FA2FF 1px, transparent 1.6px);
+  --bg-size: 90px 90px, 140px 140px;
+  --bg-pos: 0 0, 40px 70px;
+  --ink: #EEF0FF; --ink-soft: #A9B0E0; --paper: #1E2257; --frame: #070920; --cell-ink: #12153A;
+  --soft: #2A2F6E; --line: #464B8F; --win: #3B3F8F;
+  --x: #FF5FA2; --x-deep: #B8246A; --x-soft: #3A1F4F;
+  --o: #3FE0FF; --o-deep: #1592B0; --o-soft: #183A5A;
+  --c1: #FF6B9E; --c2: #FFD84D; --c3: #7CF29A; --c4: #4FE3F0; --c5: #8C9BFF;
+  --c6: #C084FC; --c7: #FF9F6B; --c8: #F9F871; --c9: #5EEAD4;
+  --f-display: "Russo One", "Arial Black", sans-serif;
+  --display-scale: .9;
+  --r: 16px;
+}
+/* Skin «Лесная поляна» */
+:root[data-skin="forest"] {
+  color-scheme: light;
+  --bg: #EAF4DC;
+  --bg-image: repeating-linear-gradient(135deg, #DDECC9 0 12px, transparent 12px 24px);
+  --bg-size: auto; --bg-pos: 0 0;
+  --ink: #23361F; --ink-soft: #5B7052; --paper: #FFFDF5; --frame: #3E5A2E; --cell-ink: #23361F;
+  --soft: #EEF5E2; --line: #C5D6B5; --win: #FFF1B8;
+  --x: #D9480F; --x-deep: #9C3108; --x-soft: #FBE3D6;
+  --o: #1F6FB2; --o-deep: #154E7E; --o-soft: #DCEBF7;
+  --c1: #F4A259; --c2: #E9C46A; --c3: #A7C957; --c4: #8AB17D; --c5: #9CC5DE;
+  --c6: #C9ADA7; --c7: #F28482; --c8: #F6BD60; --c9: #B5E48C;
+  --f-display: "Pangolin", "Comic Sans MS", sans-serif;
+  --display-scale: 1;
+  --r: 26px;
+}
+/* Skin «Тетрадка» */
+:root[data-skin="notebook"] {
+  color-scheme: light;
+  --bg: #FBFCFF;
+  --bg-image: linear-gradient(#CFDDF5 1px, transparent 1px), linear-gradient(90deg, #CFDDF5 1px, transparent 1px);
+  --bg-size: 22px 22px, 22px 22px; --bg-pos: 0 0, 0 0;
+  --ink: #1E2A4A; --ink-soft: #56627F; --paper: #FFFFFF; --frame: #2B4C9B; --cell-ink: #1E2A4A;
+  --soft: #EEF3FF; --line: #C9D4EC; --win: #FFF59D;
+  --x: #D7263D; --x-deep: #9B1B2C; --x-soft: #FDE2E5;
+  --o: #1E50C8; --o-deep: #15388C; --o-soft: #E0E9FF;
+  --c1: #FFADAD; --c2: #FFE066; --c3: #CAFFBF; --c4: #9BF6FF; --c5: #A0C4FF;
+  --c6: #BDB2FF; --c7: #FFC6FF; --c8: #FFD6A5; --c9: #D8F3A6;
+  --f-display: "Caveat", "Segoe Print", cursive;
+  --display-scale: 1.25;
+  --r: 10px;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background-color: var(--bg);
+  background-image: var(--bg-image);
+  background-size: var(--bg-size);
+  background-position: var(--bg-pos);
+  transition: background-color .3s;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  padding-inline: 16px;
+  padding-block: 18px 32px;
+}
+button { font: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
+
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 18px; }
+
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.logo { font-family: var(--f-display); font-weight: 700; font-size: calc(clamp(28px, 6vw, 42px) * var(--display-scale)); line-height: 1; margin: 0; letter-spacing: -0.5px; }
+.logo .lx { color: var(--x); }
+.logo .lo { color: var(--o); }
+.logo small { display: block; font-family: var(--f-body); font-size: 14px; font-weight: 700; color: var(--ink-soft); letter-spacing: 0.3px; margin-top: 6px; }
+.top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  border: 3px solid var(--ink); background: var(--paper); color: var(--ink);
+  border-radius: 999px; padding: 9px 16px; font-weight: 800; font-size: 15px;
+  box-shadow: 0 4px 0 var(--ink); transition: transform .08s, box-shadow .08s;
+}
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn.primary { background: var(--c2); color: var(--cell-ink); }
+
+/* scoreboard */
+.teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; }
+.team {
+  background: var(--paper); border: 3px solid var(--ink); border-radius: var(--r);
+  padding: 10px 14px; display: flex; align-items: center; gap: 12px; min-width: 0;
+  transition: transform .2s, box-shadow .2s;
+}
+.team .sym { font-family: var(--f-display); font-weight: 700; font-size: 40px; line-height: 1; }
+.team.x .sym { color: var(--x); }
+.team.o .sym { color: var(--o); }
+.team .meta { min-width: 0; }
+.team .name { font-weight: 800; font-size: 16px; overflow-wrap: anywhere; }
+.team .wins { font-size: 13px; color: var(--ink-soft); font-weight: 700; font-variant-numeric: tabular-nums; }
+.team.active.x { box-shadow: 0 6px 0 var(--x-deep); transform: translateY(-3px); background: var(--x-soft); }
+.team.active.o { box-shadow: 0 6px 0 var(--o-deep); transform: translateY(-3px); background: var(--o-soft); }
+.vs { align-self: center; font-family: var(--f-display); font-weight: 700; color: var(--ink-soft); font-size: 18px; }
+.turn-note { text-align: center; font-weight: 800; font-size: 17px; margin: 0; min-height: 1.4em; }
+.turn-note b.x { color: var(--x); } .turn-note b.o { color: var(--o); }
+
+/* board */
+.board {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2.4vw, 14px);
+  background: var(--frame); padding: clamp(8px, 2.4vw, 14px); border-radius: calc(var(--r) + 8px);
+  width: 100%; max-width: 560px; margin: 0 auto; aspect-ratio: 1 / 1;
+}
+.cell {
+  position: relative; border: 0; border-radius: var(--r); padding: 8px;
+  background: var(--cc); color: var(--cell-ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  box-shadow: inset 0 -8px 0 rgba(0,0,0,.14), inset 0 6px 0 rgba(255,255,255,.35);
+  transition: transform .12s; overflow: hidden; min-width: 0;
+}
+.cell:hover:not(:disabled) { transform: scale(1.04) rotate(-1.5deg); }
+.cell:disabled { cursor: default; }
+.cell .num { font-family: var(--f-display); font-weight: 700; font-size: calc(clamp(30px, 9vw, 56px) * var(--display-scale)); line-height: 1; }
+.cell .topic { font-size: clamp(10px, 2.6vw, 13px); font-weight: 800; text-transform: uppercase; letter-spacing: .6px; text-align: center; line-height: 1.15; overflow-wrap: anywhere; }
+.cell .hint { font-size: 11px; font-weight: 700; opacity: .7; }
+.cell.taken { background: var(--paper); box-shadow: inset 0 -6px 0 rgba(0,0,0,.08); }
+.cell.taken .num, .cell.taken .topic, .cell.taken .hint { display: none; }
+.cell svg.mark { width: 74%; height: 74%; }
+.cell svg.mark path, .cell svg.mark circle { fill: none; stroke-width: 15; stroke-linecap: round; }
+.cell.mx svg path { stroke: var(--x); stroke-dasharray: 120; stroke-dashoffset: 120; animation: draw .35s ease-out forwards; }
+.cell.mx svg path + path { animation-delay: .25s; }
+.cell.mo svg circle { stroke: var(--o); stroke-dasharray: 260; stroke-dashoffset: 260; animation: draw .55s ease-out forwards; }
+.cell.win { animation: pulse .7s ease-in-out infinite alternate; background: var(--win); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
+
+/* skin switcher */
+.skins { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.skins .label { font-weight: 800; font-size: 14px; color: var(--ink-soft); }
+.skin-btn {
+  display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--line); background: var(--paper); color: var(--ink);
+  border-radius: 999px; padding: 5px 12px 5px 6px; font-weight: 800; font-size: 14px;
+}
+.skin-btn[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.skin-btn .sw { display: inline-flex; width: 36px; height: 22px; border-radius: 999px; overflow: hidden; border: 2px solid rgba(0,0,0,.25); }
+.skin-btn .sw i { flex: 1; }
+
+/* author */
+.author {
+  display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; justify-content: center; text-align: center;
+  font-size: 14px; color: var(--ink-soft); font-weight: 700; padding-block: 4px;
+}
+.author b { color: var(--ink); }
+.author a { color: var(--ink); font-weight: 800; text-decoration-color: var(--o); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.author a:hover { color: var(--o); }
+.author .vk { display: inline-flex; align-items: center; gap: 6px; }
+.author .vk svg { width: 22px; height: 22px; flex: none; }
+.author .vk svg rect { fill: var(--o); }
+.author .vk svg text { fill: var(--paper); font: 800 9px var(--f-body); }
+.rules { background: var(--paper); border: 3px dashed var(--ink-soft); border-radius: var(--r); padding: 12px 16px; font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+.rules b { color: var(--ink); }
+
+/* overlays */
+.overlay {
+  position: fixed; inset: 0; background: rgba(43, 33, 64, .55);
+  display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 20;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px)); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.card {
+  background: var(--paper); border: 4px solid var(--ink); border-radius: 28px;
+  width: 100%; max-width: 620px; max-height: 100%; overflow-y: auto;
+  padding: 22px; display: grid; gap: 16px; box-shadow: 0 10px 0 var(--ink);
+  animation: pop .25s cubic-bezier(.3,1.6,.6,1);
+}
+@keyframes pop { from { transform: scale(.85); opacity: .4; } to { transform: scale(1); opacity: 1; } }
+.q-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.chip { border-radius: 999px; padding: 4px 12px; font-weight: 800; font-size: 13px; border: 2px solid var(--ink); background: var(--cc, var(--c2)); color: var(--cell-ink); }
+.chip.team-x { background: var(--x); color: #fff; border-color: var(--x-deep); }
+.chip.team-o { background: var(--o); color: #fff; border-color: var(--o-deep); }
+.q-text { font-family: var(--f-display); font-weight: 700; font-size: calc(clamp(22px, 4.6vw, 32px) * var(--display-scale)); line-height: 1.2; margin: 0; text-wrap: balance; }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt {
+  border: 3px solid var(--ink); border-radius: 18px; padding: 14px 12px; font-weight: 800; font-size: 18px;
+  background: var(--oc); color: var(--cell-ink); text-align: left; box-shadow: 0 4px 0 var(--ink); min-width: 0; overflow-wrap: anywhere;
+  display: flex; gap: 10px; align-items: center;
+}
+.opt .letter { flex: none; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.75); border: 2px solid var(--cell-ink); color: var(--cell-ink); display: grid; place-items: center; font-size: 15px; }
+.opt:disabled { cursor: default; opacity: .45; }
+.opt.right { opacity: 1; background: var(--good); color: #fff; }
+.opt.wrong { opacity: 1; background: var(--bad); color: #fff; text-decoration: line-through; }
+.reveal { background: var(--soft); border-radius: 16px; padding: 12px 16px; font-weight: 800; font-size: 20px; }
+.reveal small { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--ink-soft); }
+.judge { display: flex; gap: 10px; flex-wrap: wrap; }
+.judge .btn { flex: 1 1 140px; font-size: 17px; padding: 12px; }
+.btn.good { background: var(--good); color: #fff; }
+.btn.bad { background: var(--bad); color: #fff; }
+.verdict { font-family: var(--f-display); font-weight: 700; font-size: 26px; margin: 0; }
+.verdict.ok { color: var(--good); } .verdict.no { color: var(--bad); }
+
+/* teacher panel */
+.teacher h2 { font-family: var(--f-display); margin: 0; font-size: 26px; }
+.teacher p { margin: 0; color: var(--ink-soft); line-height: 1.5; font-size: 15px; }
+.fmt { background: #FFF8E1; border: 2px solid var(--c8); border-radius: 14px; padding: 10px 12px; font-size: 13.5px; line-height: 1.55; overflow-x: auto; }
+.fmt code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; white-space: pre; }
+.teacher label { font-weight: 800; font-size: 14px; }
+.card.teacher { max-width: 900px; }
+.tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.qcard { border: 3px solid var(--ink); border-radius: 18px; overflow: hidden; background: var(--paper); display: grid; min-width: 0; }
+.qcard.missing { border-color: var(--bad); box-shadow: 0 0 0 3px var(--x-soft); }
+.qcard .qc-head { background: var(--cc); padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 3px solid var(--ink); }
+.qcard .qc-num { font-family: var(--f-display); font-weight: 700; font-size: 24px; line-height: 1; color: var(--cell-ink); }
+.qcard .qc-head input { flex: 1; min-width: 0; border: 0; background: rgba(255,255,255,.65); color: var(--cell-ink); border-radius: 8px; padding: 4px 8px; font: inherit; font-size: 13px; font-weight: 700; }
+.qcard .qc-body { padding: 10px 12px 12px; display: grid; gap: 8px; }
+.qcard .field { display: grid; gap: 3px; }
+.qcard .field span { font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+.qcard .field input { border: 2px solid var(--line); border-radius: 10px; padding: 7px 9px; font: inherit; font-size: 15px; color: var(--ink); background: var(--paper); width: 100%; }
+.qcard .field input:focus { border-color: var(--ink); outline: none; }
+.qcard .field.opt-field span { font-weight: 700; }
+.paste { border: 2px dashed var(--ink-soft); border-radius: 14px; padding: 10px 14px; display: grid; gap: 10px; }
+.paste summary { font-weight: 800; cursor: pointer; }
+.paste code { background: var(--soft); padding: 1px 6px; border-radius: 6px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+.teacher textarea {
+  width: 100%; min-height: 140px; resize: vertical; border: 3px solid var(--ink); border-radius: 14px;
+  padding: 10px 12px; font-family: ui-monospace, Consolas, monospace; font-size: 13.5px; line-height: 1.5; color: var(--ink); background: var(--paper);
+}
+.names input[type=text] { width: 100%; border: 3px solid var(--ink); border-radius: 12px; padding: 8px 10px; font: inherit; font-weight: 700; color: var(--ink); background: var(--paper); }
+.names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.names > div { display: grid; gap: 4px; min-width: 0; }
+.status { font-weight: 800; font-size: 14px; margin: 0; }
+.status.err { color: var(--bad); } .status.ok { color: var(--good); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.file-btn input { display: none; }
+
+.result-title { font-family: var(--f-display); font-weight: 700; font-size: calc(clamp(30px, 7vw, 46px) * var(--display-scale)); margin: 0; text-align: center; line-height: 1.1; }
+.result-sub { text-align: center; margin: 0; font-weight: 700; color: var(--ink-soft); }
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; width: 100%; height: 100%; }
+
+@media (max-width: 480px) {
+  .teams { grid-template-columns: 1fr 1fr; }
+  .vs { display: none; }
+  .team { padding: 8px 10px; gap: 8px; }
+  .team .sym { font-size: 30px; }
+  .options { grid-template-columns: 1fr; }
+  .names { grid-template-columns: 1fr; }
+  .card { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1 class="logo"><span class="lx">Крестики</span>-<span class="lo">знайки</span>
+      <small>Ответь правильно — и клетка твоя!</small></h1>
+    <div class="top-actions">
+      <button class="btn" id="btnNew" type="button">↻ Новая игра</button>
+      <button class="btn primary" id="btnTeacher" type="button">Для учителя</button>
+    </div>
+  </header>
+
+  <div class="skins" role="group" aria-label="Оформление">
+    <span class="label">Оформление:</span>
+    <button class="skin-btn" type="button" data-skin="confetti" id="skin-confetti"><span class="sw"><i style="background:#FF8A65"></i><i style="background:#FFC93C"></i><i style="background:#6FB7FF"></i></span>Конфетти</button>
+    <button class="skin-btn" type="button" data-skin="space" id="skin-space"><span class="sw"><i style="background:#12153A"></i><i style="background:#FF5FA2"></i><i style="background:#3FE0FF"></i></span>Космос</button>
+    <button class="skin-btn" type="button" data-skin="forest" id="skin-forest"><span class="sw"><i style="background:#A7C957"></i><i style="background:#F4A259"></i><i style="background:#3E5A2E"></i></span>Лесная поляна</button>
+    <button class="skin-btn" type="button" data-skin="notebook" id="skin-notebook"><span class="sw"><i style="background:#FFFFFF"></i><i style="background:#A0C4FF"></i><i style="background:#D7263D"></i></span>Тетрадка</button>
+  </div>
+
+  <section class="teams" aria-label="Команды">
+    <div class="team x" id="teamX"><span class="sym">✕</span><div class="meta"><div class="name" id="nameX">Команда Крестиков</div><div class="wins" id="winsX">Побед: 0</div></div></div>
+    <div class="vs">против</div>
+    <div class="team o" id="teamO"><span class="sym">◯</span><div class="meta"><div class="name" id="nameO">Команда Ноликов</div><div class="wins" id="winsO">Побед: 0</div></div></div>
+  </section>
+
+  <p class="turn-note" id="turnNote" aria-live="polite"></p>
+
+  <div class="board" id="board" role="grid" aria-label="Игровое поле"></div>
+
+  <div class="rules">
+    <b>Как играть.</b> Команды ходят по очереди. Выберите клетку и ответьте на её вопрос.
+    Ответ верный — ставите свой знак. Ошибка — клетка остаётся свободной, ход переходит соперникам.
+    Побеждает тот, кто первым соберёт три знака в ряд.
+  </div>
+
+  <footer class="author">
+    <span>Автор игры: <b>Овчинникова В. С.</b></span>
+    <span class="vk"><svg viewBox="0 0 22 22" aria-hidden="true"><rect width="22" height="22" rx="6"/><text x="11" y="14.5" text-anchor="middle">VK</text></svg>
+      <a href="https://vk.ru/uchikopilka" target="_blank" rel="noopener">vk.ru/uchikopilka</a></span>
+  </footer>
+</div>
+
+<!-- Question -->
+<div class="overlay" id="qOverlay" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="qText">
+    <div class="q-head">
+      <span class="chip" id="qChip">Клетка 1</span>
+      <span class="chip" id="qTeam">Отвечают Крестики</span>
+    </div>
+    <p class="q-text" id="qText"></p>
+    <div class="options" id="qOptions"></div>
+    <div id="qOpen">
+      <div class="judge">
+        <button class="btn" id="btnReveal" type="button">Показать ответ</button>
+      </div>
+    </div>
+    <div id="qAfter" hidden></div>
+  </div>
+</div>
+
+<!-- Teacher -->
+<div class="overlay" id="tOverlay" hidden>
+  <div class="card teacher" role="dialog" aria-modal="true" aria-labelledby="tTitle">
+    <h2 id="tTitle">Вопросы для поля</h2>
+    <p>В каждой карточке напишите вопрос и правильный ответ — этого достаточно. Номер карточки = номер клетки на поле.</p>
+    <div class="tgrid" id="tGrid"></div>
+    <details class="paste">
+      <summary>Вопросы уже есть списком? Вставьте их сразу</summary>
+      <p>Скопируйте из Word или таблицы. В каждой строке: вопрос, затем знак <b>|</b> и ответ.<br>
+        Например: <code>Сколько ног у паука? | 8</code><br>
+        Из Excel или Google Таблиц можно просто скопировать два столбца «Вопрос» и «Ответ» — знак не нужен.</p>
+      <textarea id="tInput" spellcheck="false" placeholder="Сколько ног у паука? | 8&#10;7 × 8 = ? | 56"></textarea>
+      <div class="row">
+        <button class="btn" id="btnSplit" type="button">Разложить по карточкам</button>
+        <label class="btn file-btn" for="tFile">Загрузить файл<input type="file" id="tFile" accept=".txt,.csv,.tsv,text/plain,text/csv"></label>
+      </div>
+    </details>
+    <div class="names">
+      <div><label for="tNameX">Название команды ✕</label><input type="text" id="tNameX"></div>
+      <div><label for="tNameO">Название команды ◯</label><input type="text" id="tNameO"></div>
+    </div>
+    <p class="status" id="tStatus" aria-live="polite"></p>
+    <div class="row">
+      <button class="btn primary" id="btnBuild" type="button">Собрать поле</button>
+      <button class="btn" id="btnClear" type="button">Очистить всё</button>
+      <button class="btn" id="btnSample" type="button">Пример</button>
+      <button class="btn" id="btnClose" type="button">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Result -->
+<div class="overlay" id="rOverlay" hidden>
+  <div class="card">
+    <p class="result-title" id="rTitle"></p>
+    <p class="result-sub" id="rSub"></p>
+    <div class="row" style="justify-content:center">
+      <button class="btn primary" id="btnAgain" type="button">Играть ещё раз</button>
+      <button class="btn" id="btnShowBoard" type="button">Посмотреть поле</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="confetti" hidden></canvas>
+
+<script>
+(function () {
+  const SAMPLE = [
+    "Математика | 7 × 8 = ? | 56 | 54 | 48 | 64",
+    "Русский язык | Какое слово пишется с большой буквы? | Москва | река | город | столица",
+    "Природа | Сколько ног у паука? | 8 | 6 | 10 | 4",
+    "Окружающий мир | Какая планета ближе всех к Солнцу? | Меркурий | Венера | Марс | Земля",
+    "Чтение | Кто написал «Сказку о рыбаке и рыбке»? | Пушкин | Толстой | Чуковский | Носов",
+    "Математика | Сколько сантиметров в 1 метре? | 100 | 10 | 1000 | 50",
+    "Русский язык | Назови антоним к слову «горячий» | холодный",
+    "Природа | Какая птица не умеет летать? | Пингвин | Ласточка | Воробей | Сова",
+    "Загадка | Зимой и летом одним цветом. Что это? | Ёлка | Берёза | Снег | Солнце"
+  ].join("\n");
+
+  const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  const COLORS = ["--c1","--c2","--c3","--c4","--c5","--c6","--c7","--c8","--c9"];
+  const OPT_COLORS = ["--c2","--c5","--c3","--c7"];
+  const LETTERS = ["А","Б","В","Г","Д","Е"];
+  const $ = id => document.getElementById(id);
+
+  let questions = [];
+  let cells = Array(9).fill(null);
+  let turn = "x";
+  let wins = { x: 0, o: 0 };
+  let names = { x: "Команда Крестиков", o: "Команда Ноликов" };
+  let current = -1;
+  let gameOver = false;
+
+  function store(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+  function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+  function parse(text) {
+    const rows = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const out = [];
+    for (const row of rows) {
+      let parts;
+      if (row.includes("|")) parts = row.split("|");
+      else if (row.includes("\t")) parts = row.split("\t");
+      else if (row.includes(";")) parts = row.split(";");
+      else continue;
+      parts = parts.map(s => s.trim().replace(/^"(.*)"$/, "$1"));
+      while (parts.length && !parts[parts.length - 1]) parts.pop();
+      if (parts.length < 2) continue;
+      // 2 поля — «Вопрос | Ответ»; 3 и больше — «Тема | Вопрос | Ответ | неверные…» (тема может быть пустой)
+      let topic = "", q, a, wrong;
+      if (parts.length >= 3) [topic, q, a, ...wrong] = parts;
+      else [q, a, ...wrong] = parts;
+      if (!q || !a) continue;
+      if (/^(тема|вопрос)$/i.test(topic) || /^вопрос$/i.test(q)) continue; // строка заголовков
+      out.push({ topic, q, a, wrong: wrong.filter(Boolean) });
+    }
+    return out;
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  function markSvg(t) {
+    return t === "x"
+      ? '<svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M22 22 L78 78"/><path d="M78 22 L22 78"/></svg>'
+      : '<svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32"/></svg>';
+  }
+
+  function renderBoard(winLine) {
+    const b = $("board");
+    b.innerHTML = "";
+    for (let i = 0; i < 9; i++) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cell";
+      btn.id = "cell" + i;
+      btn.style.setProperty("--cc", "var(" + COLORS[i] + ")");
+      const q = questions[i];
+      if (cells[i]) {
+        btn.classList.add("taken", "m" + cells[i]);
+        btn.innerHTML = markSvg(cells[i]);
+        btn.disabled = true;
+        btn.setAttribute("aria-label", "Клетка " + (i + 1) + ": " + (cells[i] === "x" ? "крестик" : "нолик"));
+      } else {
+        btn.innerHTML = '<span class="num">' + (i + 1) + '</span>' +
+          (q && q.topic ? '<span class="topic">' + esc(q.topic) + '</span>' : '<span class="hint">вопрос</span>');
+        btn.disabled = gameOver;
+        btn.setAttribute("aria-label", "Клетка " + (i + 1) + (q && q.topic ? ", тема " + q.topic : ""));
+        btn.addEventListener("click", () => openQuestion(i));
+      }
+      if (winLine && winLine.includes(i)) btn.classList.add("win");
+      b.appendChild(btn);
+    }
+  }
+
+  function renderTeams() {
+    $("nameX").textContent = names.x; $("nameO").textContent = names.o;
+    $("winsX").textContent = "Побед: " + wins.x; $("winsO").textContent = "Побед: " + wins.o;
+    $("teamX").classList.toggle("active", turn === "x" && !gameOver);
+    $("teamO").classList.toggle("active", turn === "o" && !gameOver);
+    $("turnNote").innerHTML = gameOver ? "Игра окончена" :
+      'Ходит <b class="' + turn + '">' + esc(names[turn]) + '</b> — выбирайте клетку!';
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+  function openQuestion(i) {
+    if (gameOver || cells[i]) return;
+    current = i;
+    const q = questions[i];
+    $("qChip").textContent = "Клетка " + (i + 1) + (q.topic ? " · " + q.topic : "");
+    $("qChip").style.setProperty("--cc", "var(" + COLORS[i] + ")");
+    const tc = $("qTeam");
+    tc.textContent = "Отвечает: " + names[turn];
+    tc.className = "chip team-" + turn;
+    $("qText").textContent = q.q;
+    const opts = $("qOptions");
+    opts.innerHTML = "";
+    $("qAfter").hidden = true; $("qAfter").innerHTML = "";
+    if (q.wrong.length) {
+      opts.hidden = false; $("qOpen").hidden = true;
+      shuffle([q.a, ...q.wrong]).forEach((text, k) => {
+        const o = document.createElement("button");
+        o.type = "button"; o.className = "opt"; o.id = "opt" + k;
+        o.style.setProperty("--oc", "var(" + OPT_COLORS[k % OPT_COLORS.length] + ")");
+        o.innerHTML = '<span class="letter">' + LETTERS[k] + '</span><span>' + esc(text) + '</span>';
+        o.dataset.right = text === q.a ? "1" : "";
+        o.addEventListener("click", () => chooseOption(o));
+        opts.appendChild(o);
+      });
+    } else {
+      opts.hidden = true; $("qOpen").hidden = false;
+    }
+    $("qOverlay").hidden = false;
+    setTimeout(() => (opts.querySelector("button") || $("btnReveal")).focus(), 50);
+  }
+
+  function chooseOption(btn) {
+    const all = [...$("qOptions").children];
+    all.forEach(b => { b.disabled = true; if (b.dataset.right) b.classList.add("right"); });
+    const ok = !!btn.dataset.right;
+    if (!ok) btn.classList.add("wrong");
+    showVerdict(ok);
+  }
+
+  function showVerdict(ok) {
+    const q = questions[current];
+    const after = $("qAfter");
+    after.innerHTML =
+      '<p class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Верно! Ставим " + (turn === "x" ? "крестик" : "нолик") + "." :
+        "Не угадали. Ход переходит соперникам.") + '</p>' +
+      (ok ? "" : '<div class="reveal"><small>Правильный ответ</small>' + esc(q.a) + '</div>') +
+      '<div class="judge"><button class="btn primary" id="btnContinue" type="button">Дальше →</button></div>';
+    after.hidden = false;
+    $("btnContinue").addEventListener("click", () => finishTurn(ok));
+    $("btnContinue").focus();
+  }
+
+  $("btnReveal").addEventListener("click", () => {
+    const q = questions[current];
+    $("qOpen").hidden = true;
+    const after = $("qAfter");
+    after.innerHTML = '<div class="reveal"><small>Правильный ответ</small>' + esc(q.a) + '</div>' +
+      '<div class="judge"><button class="btn good" id="btnYes" type="button">✓ Ответили верно</button>' +
+      '<button class="btn bad" id="btnNo" type="button">✗ Ошиблись</button></div>';
+    after.hidden = false;
+    $("btnYes").addEventListener("click", () => showVerdict(true));
+    $("btnNo").addEventListener("click", () => showVerdict(false));
+  });
+
+  function finishTurn(ok) {
+    $("qOverlay").hidden = true;
+    if (ok) cells[current] = turn;
+    const line = LINES.find(l => l.every(k => cells[k] && cells[k] === cells[l[0]]));
+    if (line) {
+      gameOver = true; wins[turn]++;
+      renderBoard(line); renderTeams();
+      setTimeout(() => showResult(names[turn] + " побеждает!", "Три в ряд! Отличная работа."), 900);
+      confetti(turn);
+      return;
+    }
+    if (cells.every(Boolean)) {
+      gameOver = true; renderBoard(); renderTeams();
+      setTimeout(() => showResult("Ничья!", "Все клетки заняты — обе команды молодцы."), 600);
+      return;
+    }
+    turn = turn === "x" ? "o" : "x";
+    renderBoard(); renderTeams();
+  }
+
+  function showResult(t, s) { $("rTitle").textContent = t; $("rSub").textContent = s; $("rOverlay").hidden = false; $("btnAgain").focus(); }
+
+  function newGame() {
+    cells = Array(9).fill(null); gameOver = false; current = -1;
+    turn = (wins.x + wins.o) % 2 === 0 ? "x" : "o";
+    renderBoard(); renderTeams();
+  }
+
+  // teacher panel: 9 карточек «вопрос + ответ»
+  function renderTeacherGrid(data) {
+    const g = $("tGrid");
+    g.innerHTML = "";
+    for (let i = 0; i < 9; i++) {
+      const q = data[i] || { topic: "", q: "", a: "", wrong: [] };
+      const c = document.createElement("div");
+      c.className = "qcard"; c.id = "qcard" + i;
+      c.style.setProperty("--cc", "var(" + COLORS[i] + ")");
+      c.innerHTML =
+        '<div class="qc-head"><span class="qc-num">' + (i + 1) + '</span>' +
+          '<input type="text" id="tTopic' + i + '" placeholder="Тема (можно пропустить)" aria-label="Тема клетки ' + (i + 1) + '"></div>' +
+        '<div class="qc-body">' +
+          '<label class="field"><span>Вопрос</span><input type="text" id="tQ' + i + '" placeholder="Сколько ног у паука?"></label>' +
+          '<label class="field"><span>Правильный ответ</span><input type="text" id="tA' + i + '" placeholder="8"></label>' +
+          '<label class="field opt-field"><span>Неправильные варианты через запятую (если нужны кнопки)</span><input type="text" id="tW' + i + '" placeholder="6, 10, 4"></label>' +
+        '</div>';
+      g.appendChild(c);
+      $("tTopic" + i).value = q.topic || "";
+      $("tQ" + i).value = q.q || "";
+      $("tA" + i).value = q.a || "";
+      $("tW" + i).value = (q.wrong || []).join(", ");
+      c.addEventListener("input", () => c.classList.remove("missing"));
+    }
+  }
+
+  function readTeacherGrid() {
+    const out = [], missing = [];
+    for (let i = 0; i < 9; i++) {
+      const item = {
+        topic: $("tTopic" + i).value.trim(),
+        q: $("tQ" + i).value.trim(),
+        a: $("tA" + i).value.trim(),
+        wrong: $("tW" + i).value.split(/[,;]/).map(s => s.trim()).filter(Boolean)
+      };
+      $("qcard" + i).classList.toggle("missing", !item.q || !item.a);
+      if (!item.q || !item.a) missing.push(i + 1);
+      out.push(item);
+    }
+    return { out, missing };
+  }
+
+  function setStatus(text, ok) { const st = $("tStatus"); st.className = "status " + (ok ? "ok" : "err"); st.textContent = text; }
+
+  function splitIntoCards(text) {
+    const parsed = parse(text);
+    if (!parsed.length) { setStatus("Не нашла вопросов. В каждой строке напишите вопрос, знак | и ответ.", false); return; }
+    renderTeacherGrid(parsed.slice(0, 9));
+    setStatus("Разложила " + Math.min(parsed.length, 9) + " вопрос(ов) по карточкам" +
+      (parsed.length > 9 ? " (взяла первые 9 из " + parsed.length + ")" : "") + ". Проверьте и нажмите «Собрать поле».", true);
+  }
+
+  $("btnTeacher").addEventListener("click", () => {
+    renderTeacherGrid(questions);
+    $("tNameX").value = names.x; $("tNameO").value = names.o;
+    $("tStatus").textContent = ""; $("tOverlay").hidden = false; $("tQ0").focus();
+  });
+  $("btnClose").addEventListener("click", () => { $("tOverlay").hidden = true; });
+  $("btnSample").addEventListener("click", () => { renderTeacherGrid(parse(SAMPLE)); $("tStatus").textContent = ""; });
+  $("btnClear").addEventListener("click", () => { renderTeacherGrid([]); $("tStatus").textContent = ""; $("tQ0").focus(); });
+  $("btnSplit").addEventListener("click", () => splitIntoCards($("tInput").value));
+  $("btnBuild").addEventListener("click", () => {
+    const { out, missing } = readTeacherGrid();
+    if (missing.length) {
+      setStatus("Не хватает вопроса или ответа в карточках: " + missing.join(", ") + ". Они подсвечены красным.", false);
+      $("qcard" + (missing[0] - 1)).scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    names.x = $("tNameX").value.trim() || "Команда Крестиков";
+    names.o = $("tNameO").value.trim() || "Команда Ноликов";
+    store("kz-names", JSON.stringify(names));
+    questions = out;
+    store("kz-cards", JSON.stringify(out));
+    setStatus("Готово! Поле собрано.", true);
+    wins = { x: 0, o: 0 };
+    setTimeout(() => { $("tOverlay").hidden = true; newGame(); }, 500);
+  });
+  $("tFile").addEventListener("change", e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { $("tInput").value = r.result; splitIntoCards(r.result); };
+    r.readAsText(f, "utf-8");
+    e.target.value = "";
+  });
+
+  $("btnNew").addEventListener("click", newGame);
+  $("btnAgain").addEventListener("click", () => { $("rOverlay").hidden = true; newGame(); });
+  $("btnShowBoard").addEventListener("click", () => { $("rOverlay").hidden = true; });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") { $("tOverlay").hidden = true; $("rOverlay").hidden = true; }
+  });
+
+  // confetti
+  function confetti(team) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cv = $("confetti"); cv.hidden = false;
+    const ctx = cv.getContext("2d");
+    const W = cv.width = innerWidth, H = cv.height = innerHeight;
+    const cs = getComputedStyle(document.documentElement);
+    const palette = [team === "x" ? "--x" : "--o", "--c2", "--c3", "--c5", "--c7", "--c1"].map(v => cs.getPropertyValue(v).trim());
+    const bits = Array.from({ length: 160 }, () => ({
+      x: Math.random() * W, y: -20 - Math.random() * H * 0.6, s: 6 + Math.random() * 8,
+      vy: 2 + Math.random() * 3.5, vx: -1.5 + Math.random() * 3, r: Math.random() * 6, vr: -0.2 + Math.random() * 0.4,
+      c: palette[Math.floor(Math.random() * palette.length)]
+    }));
+    let frames = 0;
+    (function tick() {
+      ctx.clearRect(0, 0, W, H);
+      bits.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+        ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore();
+      });
+      if (++frames < 260) requestAnimationFrame(tick); else { ctx.clearRect(0, 0, W, H); cv.hidden = true; }
+    })();
+  }
+
+  // оформление
+  function setSkin(name) {
+    if (name === "confetti") delete document.documentElement.dataset.skin;
+    else document.documentElement.dataset.skin = name;
+    document.querySelectorAll(".skin-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.skin === name)));
+    store("kz-skin", name);
+  }
+  document.querySelectorAll(".skin-btn").forEach(b => b.addEventListener("click", () => setSkin(b.dataset.skin)));
+  const savedSkin = load("kz-skin");
+  setSkin(["confetti", "space", "forest", "notebook"].includes(savedSkin) ? savedSkin : "confetti");
+
+  // start
+  const savedNames = load("kz-names");
+  if (savedNames) { try { names = Object.assign(names, JSON.parse(savedNames)); } catch (e) {} }
+  questions = parse(SAMPLE);
+  const saved = load("kz-cards");
+  if (saved) {
+    try {
+      const arr = JSON.parse(saved);
+      if (Array.isArray(arr) && arr.length === 9 && arr.every(x => x && x.q && x.a)) questions = arr;
+    } catch (e) {}
+  }
+  newGame();
+})();
+</script>
+
+</body>
+</html>
